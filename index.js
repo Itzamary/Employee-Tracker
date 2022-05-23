@@ -1,6 +1,10 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 
+const roleTitleArr =  [];
+const roleObjArr = [];
+const empNames = [];
+
 const addDepartment = () => {
     return inquirer.prompt([
         {
@@ -116,8 +120,8 @@ const addRole = () => {
 
 const addEmployee = () => {
     const sql = `SELECT * FROM roles`;
-    const roleTitleArr =  [];
-    const roleObjArr = [];
+    // const roleTitleArr =  [];
+    // const roleObjArr = [];
 
     db.query(sql, (err, res) => {
         if (err){
@@ -128,7 +132,7 @@ const addEmployee = () => {
         res.forEach(role => {
          roleTitleArr.push(role.title);
          roleObjArr.push(role);
-            return roleTitleArr, role;
+            return roleTitleArr, roleObjArr;
         })
     });
 
@@ -222,6 +226,51 @@ const addEmployee = () => {
     })
 };
 
+const updateEmployee = () => {
+    const sql = `SELECT * FROM employee`;
+    // let empNames = [];
+    const emplObj = [];
+
+    db.query(sql, (err, res) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log(res, 'employee response');
+
+        res.forEach(employee => {
+            const emmplName = `${employee.first_name} ${employee.last_name}`;
+            empNames.push([emmplName]);
+            // return empNames;
+
+        });
+        console.log(empNames, 'employees names');
+        return empNames;
+    })
+
+
+
+    return inquirer.prompt([
+        
+        {
+            name: 'emoloyeeName',
+            type: 'list',
+            message: 'Who is the employee you would like to update?',
+            choices: empNames
+        },
+        {
+            type: 'list',
+            name: 'emplTitle',
+            message: 'What is the employees new role? (Require)',
+            choices: roleTitleArr
+        }
+
+    ])
+    .then(employeeInformation => {
+        console.log(employeeInformation, 'employeeInformation');
+    })
+ };
+
 const loopPrompt = ()=> {
     return inquirer.prompt([
         {
@@ -293,11 +342,12 @@ const loopPrompt = ()=> {
         } else if (info.mainQuestions === 'Add a employee') {
             addEmployee();
         } else if (info.mainQuestions === 'Update an employees role') {
+            updateEmployee();
+
 
         } else {
-            return;
+            db.end();
         }
-
     })
 }
 
